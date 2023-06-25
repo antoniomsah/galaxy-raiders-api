@@ -1,6 +1,7 @@
 package galaxyraiders.core.game
 
 import galaxyraiders.Config
+import galaxyraiders.core.score.ScoreEngine
 import galaxyraiders.ports.RandomGenerator
 import galaxyraiders.ports.ui.Controller
 import galaxyraiders.ports.ui.Controller.PlayerCommand
@@ -34,6 +35,7 @@ class GameEngine(
   )
 
   var playing = true
+  val scoreEngine = ScoreEngine()
 
   fun execute() {
     while (true) {
@@ -98,9 +100,11 @@ class GameEngine(
   private fun handleExplosions(a: SpaceObject, b: SpaceObject) {
     if (a.type == "Missile" && b.type == "Asteroid") {
       this.field.generateExplosion(b.center, b.radius)
+      scoreEngine.destroyAsteroid(b)
     }
     else if (a.type == "Asteroid" && b.type == "Missile") {
       this.field.generateExplosion(a.center, a.radius)
+      scoreEngine.destroyAsteroid(a)
     }
   }
 
