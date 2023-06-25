@@ -1,5 +1,7 @@
 package galaxyraiders.core.game
 
+import galaxyraiders.core.game.Explosion
+import galaxyraiders.core.physics.Point2D
 import galaxyraiders.helpers.AverageValueGeneratorStub
 import galaxyraiders.helpers.ControllerSpy
 import galaxyraiders.helpers.MaxValueGeneratorStub
@@ -96,6 +98,21 @@ class GameEngineTest {
     hardGame.updateSpaceObjects()
 
     assertEquals(numAsteroids + 1, hardGame.field.asteroids.size)
+  }
+
+  @Test
+  fun `it ticks its explosions while playing`() {
+		hardGame.field.generateExplosion(Point2D(x=1.0,y=2.0), 1.0)
+		var duration = ExplosionConfig.duration.toInt()
+
+		assertEquals(1, hardGame.field.explosions.size)
+
+		while(duration > 0) {
+			hardGame.tick()
+			duration--;
+		}
+
+		assertEquals(0, hardGame.field.explosions.size)
   }
 
   @Test
