@@ -1,5 +1,6 @@
 package galaxyraiders.core.game
 
+import galaxyraiders.core.game.Explosion
 import galaxyraiders.core.physics.Point2D
 import galaxyraiders.core.physics.Vector2D
 import galaxyraiders.helpers.AverageValueGeneratorStub
@@ -81,7 +82,16 @@ class SpaceFieldTest {
   }
 
   @Test
-  fun `it has a list of objects with ship, missiles and asteroids`() {
+  fun `it starts with no explosions`() {
+		assertAll(
+			"SpaceField should initialize an empty list of explosions",
+			{ assertNotNull(spaceField.explosions) },
+			{ assertEquals(0, spaceField.explosions.size) },
+		)
+  }
+
+  @Test
+  fun `it has a list of objects with ship, missiles, asteroids and explosions`() {
     val ship = spaceField.ship
 
     spaceField.generateMissile()
@@ -90,8 +100,11 @@ class SpaceFieldTest {
     spaceField.generateAsteroid()
     val asteroid = spaceField.asteroids.last()
 
+		spaceField.generateExplosion(Point2D(x=1.0,y=2.0), 1.0)
+		val explosion = spaceField.explosions.last()
+
     val expectedSpaceObjects = listOf<SpaceObject>(
-      ship, missile, asteroid
+      ship, missile, asteroid, explosion
     )
 
     assertEquals(expectedSpaceObjects, spaceField.spaceObjects)
@@ -376,6 +389,28 @@ class SpaceFieldTest {
 
     assertNotEquals(-1, spaceField.asteroids.indexOf(asteroid))
   }
+
+	@Test
+	fun `it can check if an explosion is active`() {
+		spaceField.generateExplosion(Point2D(x=1.0,y=2.0), 1.0)
+
+		assertEquals(true, spaceField.explosions.last().isAlive())
+	}
+
+	@Test
+	fun `it deletes explosions without lifetime`() {
+		spaceField.generateExplosion(Point2D(x=1.0,y=2.0), 1.0)
+		var duration = ExplosionConfig.duration.toInt()
+
+		assertEquals(1, spaceField.explosions.size)
+
+		while(duration > 0) {
+				spaceField.tickExplosions()
+				duration--;
+		}
+
+		assertEquals(0, spaceField.explosions.size)
+	}
 
   private companion object {
     @JvmStatic
